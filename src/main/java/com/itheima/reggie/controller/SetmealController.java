@@ -78,31 +78,45 @@ public class SetmealController {
         SetmealDto byIdWithDish = setmealService.getByIdWithDish(id);
         return R.success(byIdWithDish);
     }
+
     //修改套餐状态
     @PostMapping("/status/{status}")
-    public R<String> updateStatus(@PathVariable Integer status,@RequestParam List<Long>ids){
-        log.info("修改{}状态为{}",ids,status);
+    public R<String> updateStatus(@PathVariable Integer status, @RequestParam List<Long> ids) {
+        log.info("修改{}状态为{}", ids, status);
         //update setmeal set status=1 where id in(1,2,3)
         //创建一个setmeal类，将要修改的数据存入
-        Setmeal setmeal=new Setmeal();
+        Setmeal setmeal = new Setmeal();
         setmeal.setStatus(status);
         //条件查询
-        LambdaQueryWrapper<Setmeal>lambdaQueryWrapper=new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.in(Setmeal::getId,ids);
-        setmealService.update(setmeal,lambdaQueryWrapper);
+        LambdaQueryWrapper<Setmeal> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.in(Setmeal::getId, ids);
+        setmealService.update(setmeal, lambdaQueryWrapper);
         //要修改的数据以及判断条件
         return R.success("状态修改成功");
     }
+
     @GetMapping("/list")
-    public R<List<Setmeal>> list(Setmeal setmeal){
-        log.info("查询套餐信息{}",setmeal);
-        LambdaQueryWrapper<Setmeal> lambdaQueryWrapper=new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(setmeal.getCategoryId()!=null,Setmeal::getCategoryId,setmeal.getCategoryId());
-        lambdaQueryWrapper.eq(setmeal.getStatus()!=null,Setmeal::getStatus,setmeal.getStatus());
+    public R<List<Setmeal>> list(Setmeal setmeal) {
+        log.info("查询套餐信息{}", setmeal);
+        LambdaQueryWrapper<Setmeal> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(setmeal.getCategoryId() != null, Setmeal::getCategoryId, setmeal.getCategoryId());
+        lambdaQueryWrapper.eq(setmeal.getStatus() != null, Setmeal::getStatus, setmeal.getStatus());
         lambdaQueryWrapper.orderByDesc(Setmeal::getUpdateTime);
         List<Setmeal> list = setmealService.list(lambdaQueryWrapper);
 
         return R.success(list);
+
+    }
+
+    @PutMapping
+    public R<String> update(@RequestBody SetmealDto setmealDto) {
+
+        log.info("修改套餐数据{}", setmealDto);
+
+        setmealService.updateWithDish(setmealDto);
+
+        return R.success("套餐修改成功");
+
 
     }
 

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.itheima.reggie.dto.SetmealDto;
 import com.itheima.reggie.exception.CustomException;
 import com.itheima.reggie.mapper.SetmealMapper;
+import com.itheima.reggie.pojo.DishFlavor;
 import com.itheima.reggie.pojo.Setmeal;
 import com.itheima.reggie.pojo.SetmealDish;
 import com.itheima.reggie.service.SetmealDishService;
@@ -66,5 +67,24 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal>imple
         List<SetmealDish> list = setmealDishService.list(lambdaQueryWrapper);
         setmealDto.setSetmealDishes(list);
         return setmealDto;
+    }
+
+    @Override
+    public void updateWithDish(SetmealDto setmealDto) {
+        //根据id更新套餐数据
+        this.updateById(setmealDto);
+
+        //根据套餐id修改套餐菜品表数据
+        //删除再添加
+        LambdaQueryWrapper<SetmealDish> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(SetmealDish::getSetmealId, setmealDto.getId());
+        setmealDishService.remove(lambdaQueryWrapper);
+        List<SetmealDish> setmealDishes = setmealDto.getSetmealDishes();
+        //添加，获取对象中的口味集合
+        setmealDishes.forEach(setmealDish -> setmealDish.setSetmealId(setmealDto.getId()));
+        //将套餐id遍历方式存入集合中
+        setmealDishService.saveBatch(setmealDishes);
+
+
     }
 }

@@ -9,7 +9,8 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
 reggie:
-  path: C:\Users\linjialin\IdeaProjects\javaWeb\reggie_take_out\src\main\resources\static\backend\image\
+  path: src\main\resources\static\backend\image\
+#  图片上传路径
 
 
 

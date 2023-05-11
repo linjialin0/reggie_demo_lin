@@ -28,22 +28,22 @@ public class OrderController {
 
     @PostMapping("/submit")
     public R<String> submit(@RequestBody Orders orders) {
-        log.info("下单{}",orders);
+        log.info("下单{}", orders);
         orderService.submit(orders);
         return R.success("下单成功");
 
     }
 
     @GetMapping("/userPage")
-    public R<Page> page(Integer page,Integer pageSize) {
-        log.info(page+","+pageSize);
-        Page<Orders>ordersPage=new Page<>();
-        Page<OrdersDto>ordersDtoPage=new Page<>();
-        BeanUtils.copyProperties(ordersPage,ordersDtoPage,"records");
-        LambdaQueryWrapper<Orders>lambdaQueryWrapper=new LambdaQueryWrapper<>();
+    public R<Page> page2(Integer page, Integer pageSize) {
+        log.info(page + "," + pageSize);
+        Page<Orders> ordersPage = new Page<>();
+        Page<OrdersDto> ordersDtoPage = new Page<>();
+        BeanUtils.copyProperties(ordersPage, ordersDtoPage, "records");
+        LambdaQueryWrapper<Orders> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(Orders::getUserId, BaseContext.GetCurrentId());
         lambdaQueryWrapper.orderByDesc(Orders::getOrderTime);
-        orderService.page(ordersPage,lambdaQueryWrapper);
+        orderService.page(ordersPage, lambdaQueryWrapper);
         List<Orders> records = ordersPage.getRecords();
         List<OrdersDto> collect = records.stream().map((item) -> {
             OrdersDto ordersDto = new OrdersDto();
@@ -62,4 +62,30 @@ public class OrderController {
         return R.success(ordersDtoPage);
 
     }
+    //客户端
+
+    @GetMapping("/page")
+    public R<Page> page1(Integer page, Integer pageSize) {
+        log.info(page + "," + pageSize);
+        Page<Orders> ordersPage = new Page<>();
+        LambdaQueryWrapper<Orders> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.orderByDesc(Orders::getOrderTime);
+        lambdaQueryWrapper.orderByDesc(Orders::getCheckoutTime);
+        orderService.page(ordersPage, lambdaQueryWrapper);
+
+
+        return R.success(ordersPage);
+
+    }
+
+    //后台
+    @PutMapping
+    public R<String> updateStatus(@RequestBody Orders orders) {
+
+        log.info("修改订单状态{}", orders);
+        orderService.updateById(orders);
+
+        return R.success("修改状态成功");
+    }
+    //修改订单状态
 }
