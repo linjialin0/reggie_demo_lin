@@ -12,6 +12,9 @@ import com.itheima.reggie.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +29,22 @@ public class SetmealController {
     @Autowired
     private CategoryService categoryService;
 
+
+    /**
+     * redisCache常用注解说明
+     *
+     * @CachePut：将方法返回值添加到缓存中
+     * @CacheEvict： 删除指定分类的数据
+     * @Cacheable： 判断指定缓存中是否有数据，有则返回，否则将会执行查询语句，将数据存入指定缓存
+     * <p>
+     * 参数：
+     * value：分类名
+     * key：缓存数据key值
+     * allEntries：搭配CacheEvict 是否删除全部，默认为false
+     * condition/unless：什么情况会执行与什么情况不执行
+     */
+
+    @CacheEvict(value = "setmealCache", allEntries = true)
     @PostMapping
     public R<String> save(@RequestBody SetmealDto setmealDto) {
         log.info("保存套餐{}", setmealDto);
@@ -62,13 +81,14 @@ public class SetmealController {
 
     }
 
+    @CacheEvict(value = "setmealCache", allEntries = true)
+    //allEntries：是否删除setmealCache分类下所有数据，默认为false
     @DeleteMapping
     public R<String> delete(@RequestParam List<Long> ids) {
         log.info("删除{}", ids);
         setmealService.removeWithDish(ids);
 
         return R.success("删除成功");
-
     }
 
     //根据id查询数据回显
@@ -80,6 +100,7 @@ public class SetmealController {
     }
 
     //修改套餐状态
+    @CacheEvict(value = "setmealCache", allEntries = true)
     @PostMapping("/status/{status}")
     public R<String> updateStatus(@PathVariable Integer status, @RequestParam List<Long> ids) {
         log.info("修改{}状态为{}", ids, status);
@@ -95,6 +116,7 @@ public class SetmealController {
         return R.success("状态修改成功");
     }
 
+    @Cacheable(value = "setmealCache", key = "#setmeal.categoryId+'_'+#setmeal.status")
     @GetMapping("/list")
     public R<List<Setmeal>> list(Setmeal setmeal) {
         log.info("查询套餐信息{}", setmeal);
@@ -108,6 +130,7 @@ public class SetmealController {
 
     }
 
+    @CacheEvict(value = "setmealCache", allEntries = true)
     @PutMapping
     public R<String> update(@RequestBody SetmealDto setmealDto) {
 

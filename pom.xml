@@ -83,6 +83,11 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
         <!--        redis依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <!--        redisCache缓存依赖，需要与redis依赖一起使用-->
     </dependencies>
 
     <build>
