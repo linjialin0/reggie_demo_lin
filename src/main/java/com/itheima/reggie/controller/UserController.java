@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import javax.servlet.http.HttpSession;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -42,7 +43,7 @@ public class UserController {
             //session.setAttribute(phone, code);
 
             //将验证码存储到redis中，有效期为5分钟
-            redisTemplate.opsForValue().set(phone,code,5, TimeUnit.MINUTES);
+            redisTemplate.opsForValue().set(phone, code, 5, TimeUnit.MINUTES);
             return R.success("手机短信验证码发送成功");
         } else {
             return R.error("短信发送失败");
@@ -77,7 +78,7 @@ public class UserController {
                 //没有设置id，由MP默认直接生成使用，会使用雪花算法生成id存入，并自动set到实体类的id字段
                 //这也是为什么没有给实体类setId数据库有id，且实体类能get到的原因
             }
-            session.setAttribute("user",user.getId());
+            session.setAttribute("user", user.getId());
             //查询到数据时有id，查询不到时save的时候也会自动生成id，也能获取到
 
             //用户登录成功，删除redis验证码数据
@@ -89,6 +90,14 @@ public class UserController {
 
         return R.error("登录失败");
 
+    }
+
+    @PostMapping("/loginout")
+    public R<String> exit(HttpSession session) {
+        log.info("退出登录");
+        //清空session数据
+        session.removeAttribute("user");
+        return R.success("退出成功");
     }
 }
 
